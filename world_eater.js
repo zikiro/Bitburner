@@ -1,56 +1,83 @@
 /** @param {NS} ns */
 export async function main(ns) {
-	const hosts = await ns.scan();
-	const player = await ns.getPlayer();
+	const hosts = ns.scan();
+	const player = ns.getPlayer();
 	const wormFile = 'world_eater.js';
 	const home = 'home';
 	const hackingFile = 'secMinHGWW.js';
 	// const weakenFile = 'weaken.js';
 	// const playerServers = [home, "big", "liquid", "fnatic", "nip", "g2", "astralis", "mouz"];
 
+	ns.tprint('hosts found: ', hosts);
 	hosts.forEach(async (host) => {
-		const server = await ns.getServer(host);
-		const hackingFileIsRunning = await ns.isRunning(hackingFile, home, host);
-		if (hackingFileIsRunning) return;
-		if (server.purchasedByPlayer || server.hostname === 'darkweb' || server.hostname === 'home') return;
-		if (player.skills.hacking < server.requiredHackingSkill) return;
+		ns.tprint('starting for: ', host);
+		const server = ns.getServer(host);
+		const hackingFileIsRunning = ns.isRunning(hackingFile, home, host);
+		if (hackingFileIsRunning) {
+			ns.tprint('hacking file running: ', host);
+			ns.tprint('skipping: ', host);
+			return;
+		}
+		if (server.purchasedByPlayer || server.hostname === 'darkweb' || server.hostname === 'home') {
+			ns.tprint(host, ' is non hackable server');
+			ns.tprint('skipping: ', host);
+			return;
+		}
+		if (player.skills.hacking < server.requiredHackingSkill) {
+			ns.tprint('hacking level is too low!');
+			ns.tprint('skipping: ', host);
+			return;
+		}
 
 		if (server.openPortCount < server.numOpenPortsRequired) {
-			await ns.tprint('cracking ports: ', host);
-			await ns.brutessh(host);
-			await ns.ftpcrack(host);
-			await ns.relaysmtp(host);
-			await ns.httpworm(host);
-			await ns.sqlinject(host);
+			ns.tprint('cracking ports: ', host);
+			if (ns.fileExists("BruteSSH.exe")) {
+				ns.brutessh(host);
+			}
+			if (ns.fileExists("FTPCrack.exe")) {
+				ns.ftpcrack(host);
+			}
+			if (ns.fileExists("relaySMTP.exe")) {
+				ns.relaysmtp(host);
+			}
+			if (ns.fileExists("HTTPWorm.exe")) {
+				ns.httpworm(host);
+			}
+			if (ns.fileExists("SQLInject.exe")) {
+				ns.sqlinject(host);
+			}
 		}
-		await ns.asleep(100);
+
+		if (server.openPortCount < server.numOpenPortsRequired) {
+			ns.tprint('not enough ports open on host: ', host);
+			return;
+		}
+
 		if (!server.hasAdminRights) {
-			await ns.tprint('nuking server: ', host);
-			await ns.nuke(host);
+			ns.tprint('nuking server: ', host);
+			ns.nuke(host);
 		}
-		await ns.asleep(10);
 
 		if (ns.fileExists(wormFile, host)) {
-			await ns.rm(wormFile, host)
+			ns.rm(wormFile, host)
 		}
-		await ns.asleep(10);
-		await ns.tprint('copying worm: ', host);
-		await ns.scp(wormFile, host);
-		await ns.asleep(10);
+		ns.tprint('copying worm: ', host);
+		ns.scp(wormFile, host);
 
-		if(!ns.fileExists(wormFile, host) || server.maxRam < 1) {
-			await ns.exec(hackingFile, home, 1, host);
+		if (!ns.fileExists(wormFile, host) || server.maxRam < 1) {
+			ns.exec(hackingFile, home, 1, host);
 			return;
 		}
 
 		if (!ns.isRunning(wormFile, host)) {
-			await ns.tprint('executing worm: ', host);
-			await ns.exec(wormFile, host);
+			ns.tprint('executing worm: ', host);
+			ns.exec(wormFile, host);
 		}
-		await ns.asleep(10);
 
-		await ns.tprint('executing secMinHGWW: ', host);
-		await ns.exec(hackingFile, home, 1, host);
-	})
+		ns.tprint('executing secMinHGWW: ', host);
+		ns.exec(hackingFile, home, 1, host);
+		ns.tprint('finishing for: ', host);
+
+	});
 
 }

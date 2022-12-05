@@ -7,7 +7,7 @@ export async function main(ns) {
 		const maxRam = await ns.getServerMaxRam(hostname);
 		const scriptRam = await ns.getScriptRam('maxWeaken.js');
 
-		if ((ram + scriptRam) < maxRam && ram < 10000) {
+		if ((ram + scriptRam) < maxRam && ram < 5000) {
 			await ns.run('weaken.js', 1, target, ram);
 		}
 		await ns.sleep(1);
