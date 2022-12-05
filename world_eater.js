@@ -31,19 +31,19 @@ export async function main(ns) {
 
 		if (server.openPortCount < server.numOpenPortsRequired) {
 			ns.tprint('cracking ports: ', host);
-			if (ns.fileExists("BruteSSH.exe")) {
+			if (ns.fileExists("BruteSSH.exe", home)) {
 				ns.brutessh(host);
 			}
-			if (ns.fileExists("FTPCrack.exe")) {
+			if (ns.fileExists("FTPCrack.exe", home)) {
 				ns.ftpcrack(host);
 			}
-			if (ns.fileExists("relaySMTP.exe")) {
+			if (ns.fileExists("relaySMTP.exe", home)) {
 				ns.relaysmtp(host);
 			}
-			if (ns.fileExists("HTTPWorm.exe")) {
+			if (ns.fileExists("HTTPWorm.exe", home)) {
 				ns.httpworm(host);
 			}
-			if (ns.fileExists("SQLInject.exe")) {
+			if (ns.fileExists("SQLInject.exe", home)) {
 				ns.sqlinject(host);
 			}
 		}
