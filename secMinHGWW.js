@@ -21,6 +21,7 @@ export async function main(ns) {
 		} else {
 			await ns.weaken(server);
 		}
+		await ns.asleep();
 
 	}
 }

@@ -6,5 +6,6 @@ export async function main(ns) {
 		await ns.grow(server);
 		await ns.weaken(server);
 		await ns.weaken(server);
+		await ns.asleep();
 	}
 }
